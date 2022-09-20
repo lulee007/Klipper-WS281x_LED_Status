@@ -84,13 +84,13 @@ def run():
                     heat_progress.set_progress(
                         printing_stats_['heating']['total_percent'])
 
-                # Clear strip if bed and hotend heating are both done and print percent is 0
+                # keep heat progress when print percent is 0
                 if (
                     printing_percent_ == 0 and
                     printing_stats_['heating']['total_percent'] >= 100
                 ):
-                    # print('heating done for bed and hotend')
-                    printing_progress.clear_strip()
+                    heat_progress.set_progress(
+                        100)
 
                 # Set printing progress
                 if 0 < printing_percent_ < 100:

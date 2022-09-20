@@ -41,7 +41,10 @@ def printing_stats(moonraker_settings, base_temps):
     extruder_temp = data['result']['status']['extruder']['temperature']
     extruder_target = data['result']['status']['extruder']['target']
     extruder_base_temp = base_temps[1] if base_temps else 0
-
+    bed_percent = heating_percent(bed_temp, bed_target, bed_base_temp)
+    hotend_percent = heating_percent(
+        extruder_temp, extruder_target, extruder_base_temp)
+    # print(bed_percent,hotend_percent)
     return {
         'bed': {
             'temp': float(bed_temp)
@@ -51,7 +54,7 @@ def printing_stats(moonraker_settings, base_temps):
         },
         'heating': {
             # 'total_percent': 100,
-            'total_percent': (heating_percent(bed_temp, bed_target, bed_base_temp) + heating_percent(extruder_temp, extruder_target, extruder_base_temp))/2,
+            'total_percent': (bed_percent+hotend_percent)/2,
         },
         'printing': {
             # 'done_percent': 62
@@ -64,7 +67,10 @@ def heating_percent(temp, target, base_temp):
     ''' Get heating percent for given component '''
     if target == 0.0:
         return 0
-    return math.floor(((temp - base_temp) * 100) / (target - base_temp))
+    # temp float value can cause 0.5 diff
+    if (target - temp) < 0.5:
+        return 100
+    return max(math.floor(((temp - base_temp) * 100) / (target - base_temp)), 0)
 
 
 def power_off(moonraker_settings):
