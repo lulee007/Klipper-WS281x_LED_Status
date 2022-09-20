@@ -67,7 +67,7 @@ def run():
             if printer_state_ == 'printing':
                 printing_stats_ = moonraker_api.printing_stats(
                     moonraker_settings, base_temps)
-                print(printing_stats_)
+                # print(printing_stats_)
                 printing_percent_ = printing_stats_['printing']['done_percent']
                 # Get base temperatures to make heating progress start from the bottom
                 if not base_temps:
@@ -79,8 +79,8 @@ def run():
                 # Set heating progress
                 # print(printing_percent_)
                 if (printing_percent_ < 1 or printing_percent_ == 100) and printing_stats_['heating']['total_percent'] < 100:
-                    print('set heating progress',
-                          printing_stats_['heating']['total_percent'])
+                    # print('set heating progress',
+                    #   printing_stats_['heating']['total_percent'])
                     heat_progress.set_progress(
                         printing_stats_['heating']['total_percent'])
 
@@ -89,12 +89,12 @@ def run():
                     printing_percent_ == 0 and
                     printing_stats_['heating']['total_percent'] >= 100
                 ):
-                    print('heating done for bed and hotend')
+                    # print('heating done for bed and hotend')
                     printing_progress.clear_strip()
 
                 # Set printing progress
                 if 0 < printing_percent_ < 100:
-                    print("printing... progress:", printing_percent_)
+                    # print("printing... progress:", printing_percent_)
                     printing_progress.set_progress(printing_percent_)
 
             if printer_state_ == 'complete':
