@@ -15,7 +15,8 @@ import effects
 def get_settings():
     ''' Read settings from file '''
     try:
-        with open('settings.conf', 'r') as settings_file:
+        # gcode_shell_command will fail if use relative path
+        with open('/home/pi/Klipper-WS281x_LED_Status/settings.conf', 'r') as settings_file:
             try:
                 settings = yaml.safe_load(settings_file)
                 return settings
@@ -50,52 +51,50 @@ def run():
     strip.begin()
 
     effects_cl = effects.Effects(strip, strip_settings, effects_settings)
-    bed_progress = effects.Progress(strip, strip_settings, effects_settings['bed_heating'])
-    hotend_progress = effects.Progress(strip, strip_settings, effects_settings['hotend_heating'])
-    printing_progress = effects.Progress(strip, strip_settings, effects_settings['printing'])
+    heat_progress = effects.Progress(
+        strip, strip_settings, effects_settings['heating'])
+    printing_progress = effects.Progress(
+        strip, strip_settings, effects_settings['printing'])
 
     shutdown_counter = 0
     idle_timer = 0
     old_state = ''
     base_temps = []
-    test_counter = 0
     try:
         while True:
             printer_state_ = moonraker_api.printer_state(moonraker_settings)
             # print(printer_state_)
             if printer_state_ == 'printing':
-                printing_stats_ = moonraker_api.printing_stats(moonraker_settings, base_temps)
+                printing_stats_ = moonraker_api.printing_stats(
+                    moonraker_settings, base_temps)
+                print(printing_stats_)
                 printing_percent_ = printing_stats_['printing']['done_percent']
-                ## Get base temperatures to make heating progress start from the bottom
+                # Get base temperatures to make heating progress start from the bottom
                 if not base_temps:
                     base_temps = [
                         printing_stats_['bed']['temp'],
                         printing_stats_['extruder']['temp']
                     ]
 
-                ## Set bed heating progress
+                # Set heating progress
                 # print(printing_percent_)
-                if (printing_percent_ < 1 or printing_percent_ == 100) and printing_stats_['bed']['heating_percent'] < 100:
-                    bed_progress.set_progress(printing_stats_['bed']['heating_percent'])
+                if (printing_percent_ < 1 or printing_percent_ == 100) and printing_stats_['heating']['total_percent'] < 100:
+                    print('set heating progress',
+                          printing_stats_['heating']['total_percent'])
+                    heat_progress.set_progress(
+                        printing_stats_['heating']['total_percent'])
 
-                ## Set hotend heating progress
-                if (
-                    (printing_percent_ < 1 or printing_percent_ == 100) and
-                    printing_stats_['extruder']['heating_percent'] < 100 and
-                    printing_stats_['bed']['heating_percent'] >= 99
-                ):
-                    hotend_progress.set_progress(printing_stats_['extruder']['heating_percent'])
-
-                ## Clear strip if bed and hotend heating are both done and print percent is 0
+                # Clear strip if bed and hotend heating are both done and print percent is 0
                 if (
                     printing_percent_ == 0 and
-                    printing_stats_['extruder']['heating_percent'] >= 100 and
-                    printing_stats_['bed']['heating_percent'] >= 100
+                    printing_stats_['heating']['total_percent'] >= 100
                 ):
+                    print('heating done for bed and hotend')
                     printing_progress.clear_strip()
 
-                ## Set printing progress
+                # Set printing progress
                 if 0 < printing_percent_ < 100:
+                    print("printing... progress:", printing_percent_)
                     printing_progress.set_progress(printing_percent_)
 
             if printer_state_ == 'complete':
@@ -104,14 +103,15 @@ def run():
                     shutdown_counter += 1
                     if completion_settings['shutdown_when_complete'] and shutdown_counter > 9:
                         shutdown_counter = 0
-                        printing_stats_ = moonraker_api.printing_stats(moonraker_settings, base_temps)
+                        printing_stats_ = moonraker_api.printing_stats(
+                            moonraker_settings, base_temps)
                         bed_temp = printing_stats_['bed']['temp']
                         extruder_temp = printing_stats_['extruder']['temp']
                         # print(f'\nBed temp: {round(bed_temp, 2)}\nExtruder temp: {round(extruder_temp, 2)}\n')
                         if (bed_temp < completion_settings['bed_temp_for_shutdown'] and extruder_temp < completion_settings['hotend_temp_for_shutdown']):
                             effects_cl.stop_thread()
                             while effects_cl.effect_running:
-                                        time.sleep(0.1)
+                                time.sleep(0.1)
                             effects_cl.clear_strip()
                             print(moonraker_api.power_off(moonraker_settings))
 
@@ -120,7 +120,7 @@ def run():
                 if idle_timer > strip_settings['idle_timeout']:
                     effects_cl.stop_thread()
                     while effects_cl.effect_running:
-                                time.sleep(0.1)
+                        time.sleep(0.1)
                     effects_cl.clear_strip()
             else:
                 idle_timer = 0
@@ -131,15 +131,16 @@ def run():
                     time.sleep(0.1)
                 effects_cl.start_thread()
                 if printer_state_ in ['complete', 'standby', 'paused', 'error']:
-                    effect_thread = threading.Thread(target=effects_cl.run_effect, args=(printer_state_,)).start()
-                
+                    effect_thread = threading.Thread(
+                        target=effects_cl.run_effect, args=(printer_state_,)).start()
+
             old_state = printer_state_
             time.sleep(2)
 
     except KeyboardInterrupt:
         effects_cl.stop_thread()
         while effects_cl.effect_running:
-                    time.sleep(0.1)
+            time.sleep(0.1)
         effects_cl.clear_strip()
 
 
@@ -161,7 +162,8 @@ if __name__ == '__main__':
         STRIP.begin()
 
         COLOR = (int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]))
-        BRIGHTNESS = int(sys.argv[4]) if len(sys.argv) > 4 else STRIP_SETTINGS['led_brightness']
+        BRIGHTNESS = int(sys.argv[4]) if len(
+            sys.argv) > 4 else STRIP_SETTINGS['led_brightness']
         effects.static_color(STRIP, COLOR, BRIGHTNESS)
     else:
         run()

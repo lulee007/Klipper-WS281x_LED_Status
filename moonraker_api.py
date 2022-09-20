@@ -9,7 +9,7 @@ import requests
 def printer_state(moonraker_settings):
     ''' Get printer status '''
     url = f"http://{moonraker_settings['host']}:{str(moonraker_settings['port'])}" \
-           "/printer/objects/query?print_stats"
+        "/printer/objects/query?print_stats"
     try:
         ret = requests.get(url)
     except requests.exceptions.ConnectionError:
@@ -23,7 +23,7 @@ def printer_state(moonraker_settings):
 def power_status(moonraker_settings):
     ''' Get printer power status '''
     url = f"http://{moonraker_settings['host']}:{str(moonraker_settings['port'])}" \
-           "/machine/device_power/devices?device=printer"
+        "/machine/device_power/devices?device=printer"
     ret = requests.get(url)
     return json.loads(ret.text)['result']['devices'][0]['status']
 
@@ -31,7 +31,7 @@ def power_status(moonraker_settings):
 def printing_stats(moonraker_settings, base_temps):
     ''' Get stats for bed heater, hotend, and printing percent '''
     url = f"http://{moonraker_settings['host']}:{str(moonraker_settings['port'])}" \
-           "/printer/objects/query?heater_bed&extruder&display_status"
+        "/printer/objects/query?heater_bed&extruder&display_status"
     data = json.loads(requests.get(url).text)
 
     bed_temp = data['result']['status']['heater_bed']['temperature']
@@ -44,16 +44,17 @@ def printing_stats(moonraker_settings, base_temps):
 
     return {
         'bed': {
-            'temp': float(bed_temp),
-            'heating_percent': heating_percent(bed_temp, bed_target, bed_base_temp),
-            'power_percent': round(data['result']['status']['heater_bed']['power'] * 100)
+            'temp': float(bed_temp)
         },
         'extruder': {
-            'temp': float(extruder_temp),
-            'heating_percent': heating_percent(extruder_temp, extruder_target, extruder_base_temp),
-            'power_percent': round(data['result']['status']['extruder']['power'] * 100)
+            'temp': float(extruder_temp)
+        },
+        'heating': {
+            # 'total_percent': 100,
+            'total_percent': (heating_percent(bed_temp, bed_target, bed_base_temp) + heating_percent(extruder_temp, extruder_target, extruder_base_temp))/2,
         },
         'printing': {
+            # 'done_percent': 62
             'done_percent': round(data['result']['status']['display_status']['progress'] * 100)
         }
     }
@@ -69,5 +70,5 @@ def heating_percent(temp, target, base_temp):
 def power_off(moonraker_settings):
     ''' Power off the printer '''
     url = f"http://{moonraker_settings['host']}:{str(moonraker_settings['port'])}" \
-           "/machine/device_power/off?printer"
+        "/machine/device_power/off?printer"
     return requests.post(url).text

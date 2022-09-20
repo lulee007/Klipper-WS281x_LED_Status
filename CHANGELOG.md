@@ -2,6 +2,14 @@
 
 ----
 
+## 2022-9-20
+modify for my voron2.4
+
+### Changed
+- merge heating progress into one `heating`
+- add function `static_color` in effects.py
+- modify setting.conf path with absolute path in klipper_ledstrip.py to fit gcode_shell script
+
 ## 2022-05-15
 Threading and settings sample
 

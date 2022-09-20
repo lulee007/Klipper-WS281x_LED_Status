@@ -416,3 +416,10 @@ class Progress:
         for i in range(self.strip.numPixels()):
             self.strip.setPixelColorRGB(i, 0, 0, 0)
         self.strip.show()
+
+
+def static_color(strip, color, brightness=100):
+    for pixel in range(strip.numPixels()):
+        strip.setPixelColorRGB(
+            pixel, *utils.color_brightness_correction(color, brightness))
+    strip.show()
