@@ -23,19 +23,37 @@ The code has been migrated from the OctoPrint-WS281x_LED_Status (https://github.
 6. If you want to run it manually, start script before starting print (otherwise use the service below)
    1. ```./klipper_ledstrip.py```
 
-### change 1: cpu in /boot/config.txt with raspberry pi 3b+
-add `core_freq=250`
+### change 1: core_freq
+need add below line in /boot/config.txt with raspberry pi 3b+
+`core_freq=250`
 
 ### change 2: enable SPI interface for pi
 ```sh
 sudo raspi-config
 # Interfaceing Options->P4 SPI->Yes(enable this spi interface)
 reboot
+```
+check spi
 ```sh
-# check spi
 lsmod |grep spi_bcm
 # spi_bcm2835 7596 0
 ```
+
+### change 3: add power section in moonraker.conf
+if `shutdown_when_complete` set with `True` then
+need `[power printer]` section or will error with get power state
+power doc -> https://moonraker.readthedocs.io/en/latest/configuration/#power
+
+```conf
+[power printer]
+type: homeassistant
+address: 192.168.0.1
+port: 8123
+device: switch.wifi_socket_2
+token: ha_token_xxxxxx
+domain: switch
+```
+
 ## Directions to run as a systemd service
 
 1. Copy contents of ledstrip.service to /etc/systemd/system/ledstrip.service

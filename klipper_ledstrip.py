@@ -99,9 +99,9 @@ def run():
 
             if printer_state_ == 'complete':
                 base_temps = []
-                if moonraker_api.power_status(moonraker_settings) == 'on':
+                if completion_settings['shutdown_when_complete'] and moonraker_api.power_status(moonraker_settings) == 'on':
                     shutdown_counter += 1
-                    if completion_settings['shutdown_when_complete'] and shutdown_counter > 9:
+                    if shutdown_counter > 9:
                         shutdown_counter = 0
                         printing_stats_ = moonraker_api.printing_stats(
                             moonraker_settings, base_temps)

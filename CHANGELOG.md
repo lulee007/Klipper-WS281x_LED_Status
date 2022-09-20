@@ -9,6 +9,7 @@ modify for my voron2.4
 - merge heating progress into one `heating`
 - add function `static_color` in effects.py
 - modify setting.conf path with absolute path in klipper_ledstrip.py to fit gcode_shell script
+- change `shutdown_when_complete` condition in klipper_ledstrip.py if False,and not `[power]` section in moonraker.conf will not get error
 
 ## 2022-05-15
 Threading and settings sample
