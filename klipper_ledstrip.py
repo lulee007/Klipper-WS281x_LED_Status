@@ -84,13 +84,12 @@ def run():
                     heat_progress.set_progress(
                         printing_stats_['heating']['total_percent'])
 
-                # keep heat progress when print percent is 0
+                # keep printing progress with 0.1 when print percent is 0(just want keep led light on, otherwise pi camera get dark view)
                 if (
                     printing_percent_ == 0 and
                     printing_stats_['heating']['total_percent'] >= 100
                 ):
-                    heat_progress.set_progress(
-                        100)
+                    printing_progress.set_progress(0.1)
 
                 # Set printing progress
                 if 0 < printing_percent_ < 100:
