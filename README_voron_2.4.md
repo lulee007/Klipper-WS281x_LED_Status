@@ -15,13 +15,15 @@ The code has been migrated from the OctoPrint-WS281x_LED_Status (https://github.
 2. Clone code to Raspberry Pi running Klipper and Moonraker
    1. ```cd /home/pi```
    2. ```git clone https://github.com/11chrisadams11/Klipper-WS281x_LED_Status.git```
-   3. ```cd Klipper-WS281x_LED_Status.git```
+   3. ```cd Klipper-WS281x_LED_Status```
 3. Make script executable
    1. ```chmod 744 ./klipper_ledstrip.py```
 4. Change strip values in settings.conf (LED pin, brightness, timeout)
 5. Optionally, change effects and colors for standby, paused, and error states in settings.conf
 6. If you want to run it manually, start script before starting print (otherwise use the service below)
    1. ```./klipper_ledstrip.py```
+
+----
 
 ### change 1: core_freq
 need add below line in /boot/config.txt with raspberry pi 3b+

@@ -10,6 +10,7 @@ import utils
 
 class Effects:
     ''' Create effect class '''
+
     def __init__(self, strip, strip_settings, effects_settings):
         self.thread_stopped = False
         self.strip = strip
@@ -27,9 +28,12 @@ class Effects:
             'error': [],
         }
         for state in self.pixel_map:
-            effect_color_1 = effects_settings[state]['color_1'] if ('color_1' in effects_settings[state] and effects_settings[state]['color_1']) else [255, 255, 255]
-            effect_color_2 = effects_settings[state]['color_2'] if ('color_2' in effects_settings[state] and effects_settings[state]['color_2']) else None
-            self.pixel_map[state] = self.set_pixel_map(effect_color_1, effect_color_2)
+            effect_color_1 = effects_settings[state]['color_1'] if (
+                'color_1' in effects_settings[state] and effects_settings[state]['color_1']) else [255, 255, 255]
+            effect_color_2 = effects_settings[state]['color_2'] if (
+                'color_2' in effects_settings[state] and effects_settings[state]['color_2']) else None
+            self.pixel_map[state] = self.set_pixel_map(
+                effect_color_1, effect_color_2)
 
     def stop_thread(self):
         self.thread_stopped = True
@@ -51,35 +55,38 @@ class Effects:
                 elif i == self.strip.numPixels() - 1:
                     pixel_map.append(effect_color_2)
                 else:
-                    pixel_map.append(utils.mix_color(effect_color_2, effect_color_1, (spacing * i) / 100))
+                    pixel_map.append(utils.mix_color(
+                        effect_color_2, effect_color_1, (spacing * i) / 100))
         elif effect_color_1 == 'rainbow':
             colors = {
-                'violet': (148, 0  , 211),
-                'purple': (75 , 0  , 130),
-                'blue'  : (0  , 0  , 255),
-                'green' : (0  , 255, 0  ),
-                'yellow': (255, 255, 0  ),
-                'orange': (255, 127, 0  ),
-                'red'   : (255, 0  , 0  )
+                'violet': (148, 0, 211),
+                'purple': (75, 0, 130),
+                'blue': (0, 0, 255),
+                'green': (0, 255, 0),
+                'yellow': (255, 255, 0),
+                'orange': (255, 127, 0),
+                'red': (255, 0, 0)
             }
             halfish_pixels = math.floor(self.strip.numPixels() / 2)
             bottom_half_spacing = 100 / (halfish_pixels - 1)
-            top_half_spacing = 100 / ((self.strip.numPixels() - halfish_pixels))
+            top_half_spacing = 100 / \
+                ((self.strip.numPixels() - halfish_pixels))
             upper_count = 1
 
             for i in range(self.strip.numPixels()):
                 if i == 0:
                     pixel_map.append(colors['red'])
                 if 0 < i < (halfish_pixels - 1):
-                    pixel_map.append(utils.mix_color(colors['green'], colors['red'], (bottom_half_spacing * i) / 100))
+                    pixel_map.append(utils.mix_color(
+                        colors['green'], colors['red'], (bottom_half_spacing * i) / 100))
                 if i == (halfish_pixels - 1):
                     pixel_map.append(colors['green'])
                 if (halfish_pixels - 1) < i < self.strip.numPixels():
-                    pixel_map.append(utils.mix_color(colors['purple'], colors['green'], (top_half_spacing * upper_count) / 100))
+                    pixel_map.append(utils.mix_color(
+                        colors['purple'], colors['green'], (top_half_spacing * upper_count) / 100))
                     upper_count += 1
 
         return pixel_map
-        
 
     def get_pixel_map(self):
         ''' Return created pixel map '''
@@ -101,8 +108,10 @@ class Effects:
         effect = self.effects_settings[printer_state]['effect'] if 'effect' in self.effects_settings[printer_state] else 'solid'
         if effect not in ['solid', 'fade', 'chase', 'bounce', 'chase_ghost', 'ghost_bounce', 'fill', 'fill_unfill', 'fill_chase', 'twinkle', 'twinkle_colors', 'noise', 'wave', 'slava_ukraini']:
             effect = 'solid'
-        self.effect_speed = self.effects_settings[printer_state]['speed'] if 'speed' in self.effects_settings[printer_state] else 'fast'
-        self.effect_reverse = self.effects_settings[printer_state]['reverse'] if 'reverse' in self.effects_settings[printer_state] else False
+        self.effect_speed = self.effects_settings[printer_state][
+            'speed'] if 'speed' in self.effects_settings[printer_state] else 'fast'
+        self.effect_reverse = self.effects_settings[printer_state][
+            'reverse'] if 'reverse' in self.effects_settings[printer_state] else False
 
         while not self.thread_stopped:
             self.effect_running = True
@@ -118,7 +127,8 @@ class Effects:
     def solid(self):
         ''' Set static color for entire strip with no effect '''
         for pixel, color in enumerate(self.pixel_map[self.printer_state]):
-            self.strip.setPixelColorRGB(pixel, *utils.color_brightness_correction(color, self.strip_brightness))
+            self.strip.setPixelColorRGB(
+                pixel, *utils.color_brightness_correction(color, self.strip_brightness))
         self.strip.show()
 
     def fade(self):
@@ -139,7 +149,7 @@ class Effects:
             self.strip.setBrightness(i)
             self.strip.show()
             time.sleep(speed)
-        
+
         time.sleep(speed * 5)
 
     def chase(self):
@@ -177,7 +187,8 @@ class Effects:
         for i in reversed(range(len(self.pixel_map[self.printer_state]) + 5)) if self.effect_reverse else range(len(self.pixel_map[self.printer_state]) + 5):
             for pixel, color in enumerate(self.pixel_map[self.printer_state]):
                 if i == pixel:
-                    brightness = self.strip_brightness / 4 if self.effect_reverse else self.strip_brightness
+                    brightness = self.strip_brightness / \
+                        4 if self.effect_reverse else self.strip_brightness
                     self.strip.setPixelColorRGB(
                         pixel,
                         *utils.color_brightness_correction(
@@ -186,7 +197,9 @@ class Effects:
                         )
                     )
                 elif i - 1 == pixel:
-                    brightness = (self.strip_brightness / 4) * 2 if self.effect_reverse else (self.strip_brightness / 4) * 3
+                    brightness = (self.strip_brightness / 4) * \
+                        2 if self.effect_reverse else (
+                            self.strip_brightness / 4) * 3
                     self.strip.setPixelColorRGB(
                         pixel,
                         *utils.color_brightness_correction(
@@ -195,7 +208,9 @@ class Effects:
                         )
                     )
                 elif i - 2 == pixel:
-                    brightness = (self.strip_brightness / 4) * 3 if self.effect_reverse else (self.strip_brightness / 4) * 2
+                    brightness = (self.strip_brightness / 4) * \
+                        3 if self.effect_reverse else (
+                            self.strip_brightness / 4) * 2
                     self.strip.setPixelColorRGB(
                         pixel,
                         *utils.color_brightness_correction(
@@ -231,7 +246,8 @@ class Effects:
         speed = self.set_speed(0.1, 0.05)
         self.clear_strip()
         for pixel in reversed(range(len(self.pixel_map[self.printer_state]))) if self.effect_reverse else range(len(self.pixel_map[self.printer_state])):
-            self.strip.setPixelColorRGB(pixel, *self.pixel_map[self.printer_state][pixel])
+            self.strip.setPixelColorRGB(
+                pixel, *self.pixel_map[self.printer_state][pixel])
             self.strip.show()
             time.sleep(speed)
         if delay:
@@ -265,7 +281,8 @@ class Effects:
         self.clear_strip()
         for _ in range(int(2 / speed)):
             pixel = randint(0, len(self.pixel_map[self.printer_state]) - 1)
-            self.strip.setPixelColorRGB(pixel, *self.pixel_map[self.printer_state][pixel])
+            self.strip.setPixelColorRGB(
+                pixel, *self.pixel_map[self.printer_state][pixel])
             self.strip.show()
             time.sleep(speed)
             self.clear_strip()
@@ -309,19 +326,26 @@ class Effects:
             for pixel, color in enumerate(self.pixel_map[self.printer_state]):
                 self.strip.setPixelColorRGB(pixel, *color)
             if 0 <= i < len(self.pixel_map[self.printer_state]):
-                self.strip.setPixelColorRGB(i, *utils.color_brightness_correction(self.pixel_map[self.printer_state][i], 80))
+                self.strip.setPixelColorRGB(
+                    i, *utils.color_brightness_correction(self.pixel_map[self.printer_state][i], 80))
             if 0 <= i - 1 < len(self.pixel_map[self.printer_state]):
-                self.strip.setPixelColorRGB(i - 1, *utils.color_brightness_correction(self.pixel_map[self.printer_state][i - 1], 60))
+                self.strip.setPixelColorRGB(
+                    i - 1, *utils.color_brightness_correction(self.pixel_map[self.printer_state][i - 1], 60))
             if 0 <= i - 2 < len(self.pixel_map[self.printer_state]):
-                self.strip.setPixelColorRGB(i - 2, *utils.color_brightness_correction(self.pixel_map[self.printer_state][i - 2], 40))
+                self.strip.setPixelColorRGB(
+                    i - 2, *utils.color_brightness_correction(self.pixel_map[self.printer_state][i - 2], 40))
             if 0 <= i - 3 < len(self.pixel_map[self.printer_state]):
-                self.strip.setPixelColorRGB(i - 3, *utils.color_brightness_correction(self.pixel_map[self.printer_state][i - 3], 20))
+                self.strip.setPixelColorRGB(
+                    i - 3, *utils.color_brightness_correction(self.pixel_map[self.printer_state][i - 3], 20))
             if 0 <= i - 4 < len(self.pixel_map[self.printer_state]):
-                self.strip.setPixelColorRGB(i - 4, *utils.color_brightness_correction(self.pixel_map[self.printer_state][i - 4], 40))
+                self.strip.setPixelColorRGB(
+                    i - 4, *utils.color_brightness_correction(self.pixel_map[self.printer_state][i - 4], 40))
             if 0 <= i - 5 < len(self.pixel_map[self.printer_state]):
-                self.strip.setPixelColorRGB(i - 5, *utils.color_brightness_correction(self.pixel_map[self.printer_state][i - 5], 60))
+                self.strip.setPixelColorRGB(
+                    i - 5, *utils.color_brightness_correction(self.pixel_map[self.printer_state][i - 5], 60))
             if 0 <= i - 6 < len(self.pixel_map[self.printer_state]):
-                self.strip.setPixelColorRGB(i - 6, *utils.color_brightness_correction(self.pixel_map[self.printer_state][i - 6], 80))
+                self.strip.setPixelColorRGB(
+                    i - 6, *utils.color_brightness_correction(self.pixel_map[self.printer_state][i - 6], 80))
             self.strip.show()
             time.sleep(speed)
 
@@ -334,21 +358,29 @@ class Effects:
 
         for i in reversed(range(len(self.pixel_map[self.printer_state]) + 8)) if self.effect_reverse else range(len(self.pixel_map[self.printer_state]) + 8):
             for pixel in range(len(self.pixel_map[self.printer_state])):
-                self.strip.setPixelColorRGB(pixel, *color1 if pixel < ((self.strip.numPixels() - 1) / 2) else color2)
+                self.strip.setPixelColorRGB(
+                    pixel, *color1 if pixel < ((self.strip.numPixels() - 1) / 2) else color2)
             if 0 <= i < len(self.pixel_map[self.printer_state]):
-                self.strip.setPixelColorRGB(i, *utils.color_brightness_correction(color1 if i < ((self.strip.numPixels() - 1) / 2) else color2, 80))
+                self.strip.setPixelColorRGB(i, *utils.color_brightness_correction(
+                    color1 if i < ((self.strip.numPixels() - 1) / 2) else color2, 80))
             if 0 <= i - 1 < len(self.pixel_map[self.printer_state]):
-                self.strip.setPixelColorRGB(i - 1, *utils.color_brightness_correction(color1 if i - 1 < ((self.strip.numPixels() - 1) / 2) else color2, 60))
+                self.strip.setPixelColorRGB(i - 1, *utils.color_brightness_correction(
+                    color1 if i - 1 < ((self.strip.numPixels() - 1) / 2) else color2, 60))
             if 0 <= i - 2 < len(self.pixel_map[self.printer_state]):
-                self.strip.setPixelColorRGB(i - 2, *utils.color_brightness_correction(color1 if i - 2 < ((self.strip.numPixels() - 1) / 2) else color2, 40))
+                self.strip.setPixelColorRGB(i - 2, *utils.color_brightness_correction(
+                    color1 if i - 2 < ((self.strip.numPixels() - 1) / 2) else color2, 40))
             if 0 <= i - 3 < len(self.pixel_map[self.printer_state]):
-                self.strip.setPixelColorRGB(i - 3, *utils.color_brightness_correction(color1 if i - 3 < ((self.strip.numPixels() - 1) / 2) else color2, 20))
+                self.strip.setPixelColorRGB(i - 3, *utils.color_brightness_correction(
+                    color1 if i - 3 < ((self.strip.numPixels() - 1) / 2) else color2, 20))
             if 0 <= i - 4 < len(self.pixel_map[self.printer_state]):
-                self.strip.setPixelColorRGB(i - 4, *utils.color_brightness_correction(color1 if i - 4 < ((self.strip.numPixels() - 1) / 2) else color2, 40))
+                self.strip.setPixelColorRGB(i - 4, *utils.color_brightness_correction(
+                    color1 if i - 4 < ((self.strip.numPixels() - 1) / 2) else color2, 40))
             if 0 <= i - 5 < len(self.pixel_map[self.printer_state]):
-                self.strip.setPixelColorRGB(i - 5, *utils.color_brightness_correction(color1 if i - 5 < ((self.strip.numPixels() - 1) / 2) else color2, 60))
+                self.strip.setPixelColorRGB(i - 5, *utils.color_brightness_correction(
+                    color1 if i - 5 < ((self.strip.numPixels() - 1) / 2) else color2, 60))
             if 0 <= i - 6 < len(self.pixel_map[self.printer_state]):
-                self.strip.setPixelColorRGB(i - 6, *utils.color_brightness_correction(color1 if i - 6 < ((self.strip.numPixels() - 1) / 2) else color2, 80))
+                self.strip.setPixelColorRGB(i - 6, *utils.color_brightness_correction(
+                    color1 if i - 6 < ((self.strip.numPixels() - 1) / 2) else color2, 80))
             self.strip.show()
             time.sleep(speed)
 
@@ -380,7 +412,8 @@ class Progress:
             pixels_remaining -= 1
 
         if upper_remainder > 0.0:
-            tween_color = utils.mix_color(self.progress_color, self.base_color, upper_remainder)
+            tween_color = utils.mix_color(
+                self.progress_color, self.base_color, upper_remainder)
             pixel = (
                 ((self.num_pixels - int(upper_whole)) - 1)
                 if self.effect_reverse
@@ -416,10 +449,3 @@ class Progress:
         for i in range(self.strip.numPixels()):
             self.strip.setPixelColorRGB(i, 0, 0, 0)
         self.strip.show()
-
-
-def static_color(strip, color, brightness=100):
-    for pixel in range(strip.numPixels()):
-        strip.setPixelColorRGB(
-            pixel, *utils.color_brightness_correction(color, brightness))
-    strip.show()

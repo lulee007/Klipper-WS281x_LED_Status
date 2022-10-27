@@ -54,7 +54,7 @@ def printing_stats(moonraker_settings, base_temps):
         },
         'heating': {
             # 'total_percent': 100,
-            'total_percent': (bed_percent+hotend_percent)/2,
+            'total_percent': (bed_percent + hotend_percent)/2,
         },
         'printing': {
             # 'done_percent': 62
