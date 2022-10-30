@@ -165,3 +165,4 @@ if __name__ == '__main__':
         strip.show()
     else:
         run()
+
