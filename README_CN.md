@@ -7,11 +7,19 @@
    1. ```sudo apt update && sudo apt install -y git```
    2. ```sudo pip3 install requests PyYAML RPi.GPIO rpi_ws281x adafruit-circuitpython-neopixel```
    3. 新增步骤1：在 `/boot/config.txt` 文件末尾中添加这行代码 `core_freq=250`
+      `sudo nano /boot/config.txt`,在末尾添加一行后，按 CTRL+O 写入，再按 CTRL+X 退出编辑器。
+      ![图 1](images/5e27567b814485f49524f9704f80fcdbab26b9bf2c23727514210d5bb2c78494.png)  
+
    4. 新增步骤2：开启 SPI interface
       ```sh
       sudo raspi-config
-      # Interfaceing Options->P4 SPI->Yes(enable this spi interface)
-      # 配置完成后保存退出，然后重启
+      ```
+      依次选择 Interfaceing Options->P4 SPI->Yes(enable this spi interface)-> Ok -> Finish
+      ![图 2](images/4896eee7857d60d145103edfdf25eef5b4983f5628fc07ebd04d8d3492629c2a.png)  
+      ![图 3](images/c917eb4d2f96d6b0c3fb6d6e72b419c9338fe91b9a05398145a32f9526cd519b.png)  
+      ![图 4](images/5b70f47866a220d3a7a26d7b569eee854aacaaccfe31de02d080403a900d5b0c.png)  
+      ![图 5](images/ff9a7303203da4efe1981de53b6073422800ecf4389c3590b9b4b326793d66ad.png)  
+      ```sh
       reboot
       ```
       重启后检查 SPI 状态
@@ -20,6 +28,7 @@
       # 输出信息里有以下信息表明配置成功
       # spi_bcm2835 7596 0
       ```
+      
 2. 克隆项目
    1. ```cd /home/pi```
    2. ```git clone https://github.com/11chrisadams11/Klipper-WS281x_LED_Status.git```

@@ -121,8 +121,8 @@ def run():
                                         time.sleep(0.1)
                             effects_cl.clear_strip()
                             print(moonraker_api.power_off(moonraker_settings))
-
-            if printer_state_ not in ['printing', 'complete'] and old_state == printer_state_:
+            #  'paused', 'error' 需要额外关注，所以不关闭灯效
+            if printer_state_ not in ['printing', 'paused', 'error'] and old_state == printer_state_:
                 idle_timer += 2
                 if idle_timer > strip_settings['idle_timeout']:
                     effects_cl.stop_thread()
